@@ -2,13 +2,17 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.2",
-        "laravel/sanctum": "^2.14.1",
+        "laravel/sanctum": "^2.14",
         "laravel/tinker": "^2.7"
     },
     "require-dev": {
@@ -18,9 +22,6 @@
         "nunomaduro/collision": "^6.1",
         "phpunit/phpunit": "^9.5.10",
         "spatie/laravel-ignition": "^1.0"
-    },
-    "config": {
-        "cache-dir": "/home4/spcfiory/api.spcfinventory.com/cache"
     },
     "autoload": {
         "psr-4": {
@@ -57,7 +58,8 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "cache-dir": "/home4/spcfiory/api.spcfinventory.com/cache"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
