@@ -4,20 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\InventoryItem;
-use App\Models\Room;
 use App\Models\User;
-use App\Models\FileStorage;
+use App\Models\Room;
+use App\Models\InventoryItem;
 
-class TransferRequest extends Model
+class BorrowRequest extends Model
 {
-    use SoftDeletes;
     use HasFactory;
 
     protected $fillable = [
         'handler_user_id',
-        'file_storage_id',
         'requestor_user_id',
         'current_room_id',
         'destination_room_id',
@@ -27,11 +23,6 @@ class TransferRequest extends Model
         'item_type',
         'status'
     ];
-
-    public function file_storage()
-    {
-        return $this->belongsTo(FileStorage::class, 'file_storage_id');
-    }
 
     public function item()
     {

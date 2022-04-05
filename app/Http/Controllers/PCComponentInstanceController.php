@@ -15,7 +15,7 @@ class PCComponentInstanceController extends Controller
 
     public function availableItems()
     {
-        return PCComponentInstance::with('component')->whereNull('inventory_item_id')->get();
+        return PCComponentInstance::with('component')->whereNull('inventory_item_id')->where('is_disposed', false)->get();
     }
 
     public function setItem(Request $request, $id)

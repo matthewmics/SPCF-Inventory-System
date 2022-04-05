@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BorrowRequest;
 use App\Models\InventoryItem;
 use App\Models\InventoryParentItem;
 use Carbon\Carbon;
@@ -188,5 +189,17 @@ class InventoryController extends Controller
     public function allAvailableItems()
     {
         return InventoryItem::with(['inventory_parent_item'])->where('is_disposed', false)->whereNull('room_id')->get();
+    }
+
+    public function unavailableItems()
+    {
+        $result = InventoryItem::with(['inventory_parent_item', 'room', 'room.building'])
+            ->where('is_disposed', false)->whereNotNull('room_id')->get();
+
+        $result = $result->filter(function($model){
+            return !$model->is_borrowed;
+        });
+
+        return $result;
     }
 }

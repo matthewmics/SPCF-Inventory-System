@@ -19,12 +19,13 @@ class JobOrder extends Model
         'status'
     ];
 
-
+    // job order author
     public function handler()
     {
         return $this->belongsTo(User::class, 'handler_user_id');
     }
 
+    // job order processed by
     public function processor()
     {
         return $this->belongsTo(User::class, 'processor_user_id');

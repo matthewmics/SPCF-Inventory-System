@@ -17,12 +17,12 @@ class PCComponent extends Model
 
     public function instances()
     {
-        return $this->hasMany(PCComponentInstance::class, 'pc_component_id');
+        return $this->hasMany(PCComponentInstance::class, 'pc_component_id')->where('is_disposed', false);
     }
 
 
     public function instances_id_only()
     {
-        return $this->hasMany(PCComponentInstance::class, 'pc_component_id', 'id')->select('id', 'pc_component_id');
+        return $this->hasMany(PCComponentInstance::class, 'pc_component_id', 'id')->select('id', 'pc_component_id')->where('is_disposed', false);
     }
 }

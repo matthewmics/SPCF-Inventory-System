@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BorrowRequestController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\FileStorageController;
@@ -90,6 +91,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/inventory/items/{id}', [InventoryController::class, 'deleteItem'])->where(['id' => '[0-9]+']);
     Route::post('/inventory/items/{id}', [InventoryController::class, 'disposeItem'])->where(['id' => '[0-9]+']);
     Route::get('/inventory/items/available', [InventoryController::class, 'allAvailableItems']);
+    Route::get('/inventory/items/unavailable', [InventoryController::class, 'unavailableItems']);
     Route::post('/inventory/items/{id}/set-room', [InventoryController::class, 'setRoom']);
 
     Route::resource('pc-components', PCComponentController::class);
@@ -102,6 +104,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/departments/{user_id}', [DepartmentController::class, 'getBuildings'])
         ->where(['user_id' => '[0-9]+']);
     Route::get('/departments', [DepartmentController::class, 'getRooms']);
+    Route::get('/departments/rooms', [DepartmentController::class, 'getRooms2']);
 
     Route::post('/transfers', [TransferRequestController::class, 'requestTransfer']);
     Route::get('/transfers', [TransferRequestController::class, 'getRequests']);
@@ -131,6 +134,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/job-orders/{id}/create-po', [JobOrderController::class, 'createPO']);
 
     Route::get('/purchase-orders', [POController::class, 'index']);
+
+    Route::get('/borrows', [BorrowRequestController::class, 'getRequests']);
+    Route::post('/borrows', [BorrowRequestController::class, 'requestBorrow']);
 });
 
 

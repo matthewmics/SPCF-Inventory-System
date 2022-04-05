@@ -15,12 +15,23 @@ class CreateUsers extends Migration
      */
     public function up()
     {
+        // DB::table('users')->insert([
+        //     [
+        //         'name' => 'Admin User',
+        //         'email' => 'admin@localhost.com',
+        //         'role' => 'admin',
+        //         'password' => bcrypt('$pCf1nVENT0rY'),
+        //         'created_at' => Carbon::now(),
+        //         'updated_at' => Carbon::now()
+        //     ]
+        // ]);
+
         DB::table('users')->insert([
             [
                 'name' => 'Admin User',
                 'email' => 'admin@localhost.com',
                 'role' => 'admin',
-                'password' => bcrypt('$pCf1nVENT0rY'),
+                'password' => bcrypt('password'),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]

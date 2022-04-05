@@ -35,12 +35,25 @@ class DepartmentController extends Controller
     public function getRooms()
     {
         $user_id = auth()->user()->id;
-        $rooms = Room::whereIn(
+        // $rooms = Room::whereIn(
+        //     'building_id',
+        //     DepartmentBuilding::select('building_id')->where('user_id', $user_id)
+        // )
+        //     ->get();
+        $rooms = Room::get();
+
+        return ['rooms' => $rooms];
+    }
+
+    public function getRooms2()
+    {
+        $user_id = auth()->user()->id;
+        $rooms = Room::with('building')->whereIn(
             'building_id',
             DepartmentBuilding::select('building_id')->where('user_id', $user_id)
         )
             ->get();
 
-        return ['rooms' => $rooms];
+        return $rooms;
     }
 }

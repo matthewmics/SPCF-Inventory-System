@@ -9,11 +9,16 @@ use App\Models\InventoryParentItem;
 use App\Models\Room;
 use App\Models\TransferRequest;
 use App\Models\RepairRequest;
+use App\Models\BorrowRequest;
 
 class InventoryItem extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    private $repairNotBrokenStatus = ['completed', 'rejected', 'disposed', 'replaced', 'PO created', 'repaired'];
+    private $notTransferringStatus = ['completed', 'rejected', 'disposed'];
+    private $notBorrowedStatus = ['completed', 'rejected'];
 
     public $fillable = [
         'brand',
@@ -22,6 +27,32 @@ class InventoryItem extends Model
         'room_id',
         'is_disposed'
     ];
+
+    protected $appends = ['is_broken', 'is_transferring', 'is_borrowed'];
+
+    public function getIsBrokenAttribute()
+    {
+        $id = $this->id;
+        return RepairRequest::where('item_id', $id)
+            ->whereNotIn('status', $this->repairNotBrokenStatus)
+            ->exists();
+    }
+
+    public function getIsTransferringAttribute()
+    {
+        $id = $this->id;
+        return TransferRequest::where('item_id', $id)
+            ->whereNotIn('status', $this->notTransferringStatus)
+            ->exists();
+    }
+
+    public function getIsBorrowedAttribute()
+    {
+        $id = $this->id;
+        return BorrowRequest::where('item_id', $id)
+            ->whereNotIn('status', $this->notTransferringStatus)
+            ->exists();
+    }
 
     public function components()
     {
@@ -46,7 +77,7 @@ class InventoryItem extends Model
     public function available_transfer_requests()
     {
         return $this->hasMany(TransferRequest::class, 'item_id')
-            ->whereNotIn('status', ['completed', 'rejected', 'disposed'])->select('id', 'item_id');
+            ->whereNotIn('status', $this->notTransferringStatus)->select('id', 'item_id');
     }
 
     public function repair_requests()
@@ -57,6 +88,6 @@ class InventoryItem extends Model
     public function available_repair_requests()
     {
         return $this->hasMany(RepairRequest::class, 'item_id')
-            ->whereNotIn('status', ['completed', 'rejected', 'disposed', 'replaced', 'PO created', 'repaired'])->select('id', 'item_id');
+            ->whereNotIn('status', $this->repairNotBrokenStatus)->select('id', 'item_id');
     }
 }
