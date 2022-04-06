@@ -28,30 +28,58 @@ class InventoryItem extends Model
         'is_disposed'
     ];
 
-    protected $appends = ['is_broken', 'is_transferring', 'is_borrowed'];
+    protected $appends = ['repair_status', 'transfer_status', 'borrow_status'];
 
-    public function getIsBrokenAttribute()
+    public function getRepairStatusAttribute()
     {
         $id = $this->id;
-        return RepairRequest::where('item_id', $id)
-            ->whereNotIn('status', $this->repairNotBrokenStatus)
-            ->exists();
+        // return RepairRequest::where('item_id', $id)
+        //     ->whereNotIn('status', $this->repairNotBrokenStatus)
+        //     ->exists();
+
+        $data = RepairRequest::where('item_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($data) {
+            return $data->status;
+        }
+
+        return 'none';
     }
 
-    public function getIsTransferringAttribute()
+    public function getTransferStatusAttribute()
     {
         $id = $this->id;
-        return TransferRequest::where('item_id', $id)
-            ->whereNotIn('status', $this->notTransferringStatus)
-            ->exists();
+
+        // return TransferRequest::where('item_id', $id)
+        //     ->whereNotIn('status', $this->notTransferringStatus)
+        //     ->exists();
+
+        $data = TransferRequest::where('item_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($data) {
+            return $data->status;
+        }
+
+        return 'none';
     }
 
-    public function getIsBorrowedAttribute()
+    public function getBorrowStatusAttribute()
     {
         $id = $this->id;
-        return BorrowRequest::where('item_id', $id)
-            ->whereNotIn('status', $this->notBorrowedStatus)
-            ->exists();
+
+        $data = BorrowRequest::where('item_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($data) {
+            return $data->status;
+        }
+
+        return 'none';
     }
 
     public function components()

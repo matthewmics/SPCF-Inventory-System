@@ -197,8 +197,8 @@ class InventoryController extends Controller
         $result = InventoryItem::with(['inventory_parent_item', 'room', 'room.building'])
             ->where('is_disposed', false)->whereNotNull('room_id')->get();
 
-        $result = $result->filter(function($model){
-            return !$model->is_borrowed;
+        $result = $result->filter(function ($model) {
+            return $model->borrow_status === 'none' || $model->borrow_status === 'returned';
         })->values();
 
         // $result = Arr::where($result, function($model){
