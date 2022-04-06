@@ -137,6 +137,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/borrows', [BorrowRequestController::class, 'getRequests']);
     Route::post('/borrows', [BorrowRequestController::class, 'requestBorrow']);
+    Route::get('/borrows/processable', [BorrowRequestController::class, 'processableRequests']);
+    Route::post('/borrows/{id}/inprogress', [BorrowRequestController::class, 'setInProgress'])->where(['id' => '[0-9]+']);
+    Route::post('/borrows/{id}/reject', [BorrowRequestController::class, 'reject'])->where(['id' => '[0-9]+']);
+    Route::post('/borrows/{id}/borrow', [BorrowRequestController::class, 'setAsBorrowed'])->where(['id' => '[0-9]+']);
+    Route::post('/borrows/{id}/return', [BorrowRequestController::class, 'setAsReturned'])->where(['id' => '[0-9]+']);
 });
 
 

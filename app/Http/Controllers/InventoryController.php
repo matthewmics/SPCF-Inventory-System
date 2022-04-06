@@ -7,6 +7,7 @@ use App\Models\InventoryItem;
 use App\Models\InventoryParentItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
@@ -198,7 +199,11 @@ class InventoryController extends Controller
 
         $result = $result->filter(function($model){
             return !$model->is_borrowed;
-        });
+        })->values();
+
+        // $result = Arr::where($result, function($model){
+        //     return !$model->is_borrowed;
+        // });
 
         return $result;
     }

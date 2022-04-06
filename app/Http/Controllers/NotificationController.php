@@ -12,6 +12,7 @@ class NotificationController extends Controller
     {
         return Notification::where('user_id', auth()->user()->id)
             ->where('read', 0)
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 

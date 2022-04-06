@@ -18,7 +18,7 @@ class InventoryItem extends Model
 
     private $repairNotBrokenStatus = ['completed', 'rejected', 'disposed', 'replaced', 'PO created', 'repaired'];
     private $notTransferringStatus = ['completed', 'rejected', 'disposed'];
-    private $notBorrowedStatus = ['completed', 'rejected'];
+    private $notBorrowedStatus = ['returned', 'rejected'];
 
     public $fillable = [
         'brand',
@@ -50,7 +50,7 @@ class InventoryItem extends Model
     {
         $id = $this->id;
         return BorrowRequest::where('item_id', $id)
-            ->whereNotIn('status', $this->notTransferringStatus)
+            ->whereNotIn('status', $this->notBorrowedStatus)
             ->exists();
     }
 
