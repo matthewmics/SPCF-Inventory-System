@@ -9,6 +9,6 @@ class POController extends Controller
 {
     public function index()
     {
-        return PurchaseOrder::with('file_storage')->get();
+        return PurchaseOrder::orderBy('created_at', 'desc')->get();
     }
 }
