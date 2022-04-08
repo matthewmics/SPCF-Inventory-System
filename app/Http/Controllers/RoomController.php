@@ -7,6 +7,7 @@ use App\Models\InventoryItem;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use App\Models\InventoryParentItem;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -14,12 +15,20 @@ class RoomController extends Controller
 
     public function getItemParents($room_id)
     {
-        $parentItems = InventoryParentItem::with(['inventory_items' => function ($query) use ($room_id) {
-            $query->select('id', 'inventory_parent_item_id')->where('room_id', $room_id)->where('is_disposed', false);
-        }])
-            ->orderBy('id')->get();
-
-        return $parentItems;
+        // $parentItems = InventoryParentItem::with(['inventory_items' => function ($query) use ($room_id) {
+        //     $query->select('id', 'inventory_parent_item_id')->where('room_id', $room_id)->where('is_disposed', false);
+        // }])
+        //     ->orderBy('id')->get();
+        // 'name','item_type','created_at','updated_at'
+        return DB::table('inventory_parent_items')
+            ->select(DB::raw("id,name,item_type,created_at,updated_at,
+            (SELECT count(1) FROM inventory_items b
+            where is_disposed is false 
+            AND inventory_parent_items.id = inventory_parent_item_id
+            AND room_id = $room_id
+            ) as qty_available
+            "))
+            ->get();
     }
 
     public function getItems($room_id, $inventory_parent_item_id)

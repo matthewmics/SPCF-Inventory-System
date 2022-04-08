@@ -14,20 +14,24 @@ class InventoryController extends Controller
 {
     public function getItemParents()
     {
-        $parentItems = InventoryParentItem::with(['inventory_items' => function ($query) {
-            $query->select('inventory_parent_item_id', 'id')->where('is_disposed', false);
-        }])
-            ->orderBy('id')->get();
+        // $parentItems = InventoryParentItem::with(['inventory_items' => function ($query) {
+        //     $query->select('inventory_parent_item_id', 'id')->where('is_disposed', false);
+        // }])
+        //     ->orderBy('id')->get();
+
+        $parentItems = InventoryParentItem::orderBy('id')->get();
 
         return $parentItems;
     }
 
     public function getAvailableItemParents()
     {
-        $parentItems = InventoryParentItem::with(['inventory_items' => function ($query) {
-            $query->select('inventory_parent_item_id', 'id')->whereNull('room_id')->where('is_disposed', false);
-        }])
-            ->orderBy('id')->get();
+        // $parentItems = InventoryParentItem::with(['inventory_items' => function ($query) {
+        //     $query->select('inventory_parent_item_id', 'id')->whereNull('room_id')->where('is_disposed', false);
+        // }])
+        //     ->orderBy('id')->get();
+
+        $parentItems = InventoryParentItem::orderBy('id')->get();
 
         return $parentItems;
     }
