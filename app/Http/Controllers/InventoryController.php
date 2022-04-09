@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ActivityLogController;
 
 class InventoryController extends Controller
 {
@@ -63,6 +64,10 @@ class InventoryController extends Controller
             'item_type' => 'string|required'
         ]);
 
+        $current_user = auth()->user();
+
+        ActivityLogController::store(auth()->user(), "<b>$current_user->name</b> created Item <b>$request->name</b>");
+
         return InventoryParentItem::create($request->all());
     }
 
@@ -80,6 +85,11 @@ class InventoryController extends Controller
 
         $item = InventoryParentItem::find($id);
 
+
+        $current_user = auth()->user();
+
+        ActivityLogController::store(auth()->user(), "<b>$current_user->name</b> edited Item <b>$item->name</b>");
+
         $item->update($request->all());
 
         return $item;
@@ -89,6 +99,11 @@ class InventoryController extends Controller
     {
 
         $item = InventoryParentItem::find($id);
+
+
+        $current_user = auth()->user();
+
+        ActivityLogController::store(auth()->user(), "<b>$current_user->name</b> edited Item <b>$item->name</b>");
 
         $item->delete();
 
@@ -135,6 +150,12 @@ class InventoryController extends Controller
             'inventory_parent_item_id' => 'required'
         ]);
 
+        $parent = InventoryParentItem::find($request['inventory_parent_item_id']);
+
+        $current_user = auth()->user();
+
+        ActivityLogController::store(auth()->user(), "<b>$current_user->name</b> created $parent->name <b>$request->serial_number</b>");
+
         return InventoryItem::create($request->all());
     }
 
@@ -148,6 +169,13 @@ class InventoryController extends Controller
         ]);
 
         $item = InventoryItem::find($id);
+
+        $parent = InventoryParentItem::find($item->inventory_parent_item_id);
+
+        $current_user = auth()->user();
+
+        ActivityLogController::store(auth()->user(), "<b>$current_user->name</b> edited $parent->name <b>$item->serial_number</b>");
+
         $item->update($request->all());
 
         return $item;
@@ -159,6 +187,13 @@ class InventoryController extends Controller
     {
 
         $item = InventoryItem::find($id);
+
+        $parent = InventoryParentItem::find($item->inventory_parent_item_id);
+
+        $current_user = auth()->user();
+
+        ActivityLogController::store(auth()->user(), "<b>$current_user->name</b> deleted $parent->name <b>$item->serial_number</b>");
+
         $item->delete();
         return response()->noContent();
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\ActivityLogController;
 use App\Models\Building;
 use Illuminate\Http\Request;
 
@@ -29,6 +30,11 @@ class BuildingController extends Controller
             'name' => 'required'
         ]);
 
+        $user = auth()->user();
+        $building_name = $request['name'];
+
+        ActivityLogController::store(auth()->user(), "<b>$user->name</b> created building <b>$building_name</b>");
+
         return Building::create($request->all());
     }
 
@@ -54,9 +60,15 @@ class BuildingController extends Controller
     {
         $request->validate([
             'name' => 'required'
-        ]);
+        ]);        
 
         $building = Building::find($id);
+            
+        $user = auth()->user();
+        $building_name = $building->name;
+
+        ActivityLogController::store(auth()->user(), "<b>$user->name</b> edited building <b>$building_name</b>");
+
         $building->update($request->all());
         return $building;
     }
@@ -70,6 +82,12 @@ class BuildingController extends Controller
     public function destroy($id)
     {
         $building = Building::find($id);
+
+        $user = auth()->user();
+        $building_name = $building->name;
+
+        ActivityLogController::store(auth()->user(), "<b>$user->name</b> deleted building <b>$building_name</b>");
+
         $building->delete();
         return response()->noContent();
     }
