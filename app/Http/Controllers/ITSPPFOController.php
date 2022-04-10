@@ -10,6 +10,7 @@ use App\Models\TransferRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ActivityLogController;
 
 class ITSPPFOController extends Controller
 {
@@ -64,7 +65,7 @@ class ITSPPFOController extends Controller
         }
 
         return RepairRequest::with(['item', 'requestor', 'item.inventory_parent_item'])
-        ->whereNotIn('status', $statuses)
+            ->whereNotIn('status', $statuses)
             ->orderBy('id')
             ->get();
     }
@@ -79,13 +80,19 @@ class ITSPPFOController extends Controller
 
         $request_id = $request['transfer_request_id'];
 
-        $requestTransfer = TransferRequest::with(['item', 'item.inventory_parent_item'])->find($request_id);
+        $requestTransfer = TransferRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($request_id);
 
         $requestTransfer->status = 'rejected';
         $requestTransfer->handler_user_id = $handler_id;
         $requestTransfer->rejection_details = $request['rejection_details'];
 
         $requestTransfer->save();
+
+        $item_name = $requestTransfer->item->inventory_parent_item->name;
+        $requestor_name = $requestTransfer->requestor->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to transfer <b>$item_name</b> to rejected";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $requestTransfer->requestor_user_id,
@@ -94,6 +101,35 @@ class ITSPPFOController extends Controller
 
         return $request;
     }
+
+    public function workOnRequest(Request $request)
+    {
+        $handler_id = auth()->user()->id;
+
+        $request_id = $request['transfer_request_id'];
+
+        $request = TransferRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($request_id);
+
+        $request->status = 'in progress';
+        $request->handler_user_id = $handler_id;
+
+        $request->save();
+
+        $item_name = $request->item->inventory_parent_item->name;
+        $requestor_name = $request->requestor->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to transfer <b>$item_name</b> to in progress";
+        ActivityLogController::store(auth()->user(), $activity_text);
+
+        Notification::create([
+            'user_id' => $request->requestor_user_id,
+            'message' => "Your request to transfer a <b>" . $request->item->inventory_parent_item->name . "</b> is now in progress"
+        ]);
+
+        return $request;
+    }
+
+    // -=----=----=----=----=----=----=----=----=----=----=----=----=----=----=----=----=----=---
 
     public function rejectRepairRequest(Request $request)
     {
@@ -106,13 +142,19 @@ class ITSPPFOController extends Controller
 
         $request_id = $request['repair_request_id'];
 
-        $requestTransfer = RepairRequest::with(['item', 'item.inventory_parent_item'])->find($request_id);
+        $requestTransfer = RepairRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($request_id);
 
         $requestTransfer->status = 'rejected';
         $requestTransfer->handler_user_id = $handler_id;
         $requestTransfer->rejection_details = $request['rejection_details'];
 
         $requestTransfer->save();
+
+        $item_name = $requestTransfer->item->inventory_parent_item->name;
+        $requestor_name = $requestTransfer->requestor->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to repair <b>$item_name</b> to rejected";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $requestTransfer->requestor_user_id,
@@ -142,10 +184,17 @@ class ITSPPFOController extends Controller
         $item->save();
 
         // set repair request status        
-        $repairRequest = RepairRequest::with(['item', 'item.inventory_parent_item'])->find($request['repair_request_id']);
+        $repairRequest = RepairRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($request['repair_request_id']);
         $repairRequest->status = 'disposed';
         $repairRequest->handler_user_id = $handler_id;
         $repairRequest->save();
+
+        
+        $item_name = $repairRequest->item->inventory_parent_item->name;
+        $requestor_name = $repairRequest->requestor->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to repair <b>$item_name</b> to disposed";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
 
         // notify 
@@ -171,12 +220,18 @@ class ITSPPFOController extends Controller
             'repair_request_id' => $request['repair_request_id']
         ]);
 
-        $repairRequest = RepairRequest::with(['item', 'item.inventory_parent_item'])->find($request['repair_request_id']);
+        $repairRequest = RepairRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($request['repair_request_id']);
 
         // set status
         $repairRequest->status = 'job order created';
         $repairRequest->handler_user_id = $handler_id;
         $repairRequest->save();
+
+        $item_name = $repairRequest->item->inventory_parent_item->name;
+        $requestor_name = $repairRequest->requestor->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to repair <b>$item_name</b> to job order created";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         // notify 
         Notification::create([
@@ -190,28 +245,6 @@ class ITSPPFOController extends Controller
     }
 
 
-    public function workOnRequest(Request $request)
-    {
-        $handler_id = auth()->user()->id;
-
-        $request_id = $request['transfer_request_id'];
-
-        $request = TransferRequest::with(['item', 'item.inventory_parent_item'])->find($request_id);
-
-        $request->status = 'in progress';
-        $request->handler_user_id = $handler_id;
-
-        $request->save();
-
-
-        Notification::create([
-            'user_id' => $request->requestor_user_id,
-            'message' => "Your request to transfer a <b>" . $request->item->inventory_parent_item->name . "</b> is now in progress"
-        ]);
-
-        return $request;
-    }
-
 
     public function finishRequest(Request $request)
     {
@@ -219,7 +252,7 @@ class ITSPPFOController extends Controller
 
         $request_id = $request['transfer_request_id'];
 
-        $request = TransferRequest::with(['item', 'item.inventory_parent_item'])->find($request_id);
+        $request = TransferRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($request_id);
 
         $item = InventoryItem::find($request->item_id);
 
@@ -231,6 +264,12 @@ class ITSPPFOController extends Controller
         $request->handler_user_id = $handler_id;
 
         $request->save();
+
+        $item_name = $request->item->inventory_parent_item->name;
+        $requestor_name = $request->requestor->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to transfer <b>$item_name</b> to completed";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $request->requestor_user_id,

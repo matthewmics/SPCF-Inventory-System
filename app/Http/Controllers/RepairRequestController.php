@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\RepairRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ActivityLogController;
 
 class RepairRequestController extends Controller
 {
@@ -81,14 +82,18 @@ class RepairRequestController extends Controller
         $requestor_name = auth()->user()->name;
         $item_to_repair_name = $item->inventory_parent_item->name;
 
+        $activity_text = "<b>$requestor_name</b> has requested <b>$item_to_repair_name</b> to be repaired";
+
         foreach ($notified_users as $notified_user) {
             array_push($notifications_to_insert, [
                 'user_id' => $notified_user->id,
-                'message' => "<b>$requestor_name</b> has requested <b>$item_to_repair_name</b> to be repaired",
+                'message' => $activity_text,
                 "created_at" =>  \Carbon\Carbon::now('UTC'),
                 "updated_at" => \Carbon\Carbon::now('UTC'),
             ]);
         }
+        
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::insert($notifications_to_insert);
 

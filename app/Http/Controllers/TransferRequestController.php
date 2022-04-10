@@ -9,6 +9,7 @@ use App\Models\Room;
 use App\Models\TransferRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ActivityLogController;
 
 class TransferRequestController extends Controller
 {
@@ -88,17 +89,20 @@ class TransferRequestController extends Controller
         $room_destination_name = $room_destination->name;
         $item_to_transfer_name = $item->inventory_parent_item->name;
 
+        $activity_text = "<b>$requestor_name</b> has requested to transfer a <b>$item_to_transfer_name</b> to <b>$room_destination_name</b>";
+
         foreach ($notified_users as $notified_user) {
             array_push($notifications_to_insert, [
                 'user_id' => $notified_user->id,
-                'message' => "<b>$requestor_name</b> has requested to transfer a <b>$item_to_transfer_name</b> to <b>$room_destination_name</b>",
+                'message' => $activity_text,
                 "created_at" =>  \Carbon\Carbon::now('UTC'),
                 "updated_at" => \Carbon\Carbon::now('UTC'),
             ]);
-        }
+        }        
+
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::insert($notifications_to_insert);
-
 
         return $transfer_request;
     }

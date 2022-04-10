@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\InventoryItem;
 use App\Models\Notification;
 use App\Models\Room;
+use App\Http\Controllers\ActivityLogController;
 
 class BorrowRequestController extends Controller
 {
@@ -101,68 +102,99 @@ class BorrowRequestController extends Controller
             $room_current_name = $item->room->name;
             $item_to_transfer_name = $item->inventory_parent_item->name;
 
+            $activity_text = "<b>$requestor_name</b> has requested to borrow a <b>$item_to_transfer_name</b> from $room_current_name 
+            for <b>$room_destination_name</b>";
+
             foreach ($notified_users as $notified_user) {
                 array_push($notifications_to_insert, [
                     'user_id' => $notified_user->id,
-                    'message' => "<b>$requestor_name</b> has requested to borrow a <b>$item_to_transfer_name</b> from $room_current_name 
-                                for <b>$room_destination_name</b>",
+                    'message' => $activity_text,
                     "created_at" =>  \Carbon\Carbon::now('UTC'),
                     "updated_at" => \Carbon\Carbon::now('UTC'),
                 ]);
             }
 
-
+            ActivityLogController::store(auth()->user(), $activity_text);
             Notification::insert($notifications_to_insert);
 
             return $borrow_request;
         });
     }
 
-    function setInProgress($id) {
+    function setInProgress($id)
+    {
         $handler_id = auth()->user()->id;
 
-        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item'])->find($id);
+        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($id);
 
         $borrowRequest->status = 'in progress';
         $borrowRequest->handler_user_id = $handler_id;
 
         $borrowRequest->save();
 
+        $item_name = $borrowRequest->item->inventory_parent_item->name;
+        $requestor_name = $borrowRequest->requestor->name;
+        $current_user_name = auth()->user()->name;
+
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to borrow <b>$item_name</b> to in progress";
+
         Notification::create([
             'user_id' => $borrowRequest->requestor_user_id,
             'message' => "Your request to borrow a <b>" . $borrowRequest->item->inventory_parent_item->name . "</b> is now in progress"
         ]);
 
+        ActivityLogController::store(auth()->user(), $activity_text);
+
         return $borrowRequest;
     }
 
-    function reject($id) {
+    function reject($id)
+    {
         $handler_id = auth()->user()->id;
 
-        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item'])->find($id);
+        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($id);
 
         $borrowRequest->status = 'rejected';
         $borrowRequest->handler_user_id = $handler_id;
 
         $borrowRequest->save();
 
+        $item_name = $borrowRequest->item->inventory_parent_item->name;
+        $requestor_name = $borrowRequest->requestor->name;
+        $current_user_name = auth()->user()->name;
+
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to borrow <b>$item_name</b> to rejected";
+
         Notification::create([
             'user_id' => $borrowRequest->requestor_user_id,
             'message' => "Your request to borrow a <b>" . $borrowRequest->item->inventory_parent_item->name . "</b> has been rejected"
         ]);
 
+        
+        ActivityLogController::store(auth()->user(), $activity_text);
+
         return $borrowRequest;
     }
 
-    function setAsBorrowed($id) {
+    function setAsBorrowed($id)
+    {
         $handler_id = auth()->user()->id;
 
-        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item'])->find($id);
+        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($id);
 
         $borrowRequest->status = 'borrowed';
         $borrowRequest->handler_user_id = $handler_id;
 
         $borrowRequest->save();
+
+        
+        $item_name = $borrowRequest->item->inventory_parent_item->name;
+        $requestor_name = $borrowRequest->requestor->name;
+        $current_user_name = auth()->user()->name;
+
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to borrow <b>$item_name</b> to borrowed";
+        
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $borrowRequest->requestor_user_id,
@@ -172,15 +204,24 @@ class BorrowRequestController extends Controller
         return $borrowRequest;
     }
 
-    function setAsReturned($id) {
+    function setAsReturned($id)
+    {
         $handler_id = auth()->user()->id;
 
-        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item'])->find($id);
+        $borrowRequest = BorrowRequest::with(['item', 'item.inventory_parent_item', 'requestor'])->find($id);
 
         $borrowRequest->status = 'returned';
         $borrowRequest->handler_user_id = $handler_id;
 
         $borrowRequest->save();
+        
+        $item_name = $borrowRequest->item->inventory_parent_item->name;
+        $requestor_name = $borrowRequest->requestor->name;
+        $current_user_name = auth()->user()->name;
+
+        $activity_text = "<b>$current_user_name</b> set <b>$requestor_name's</b> request to borrow <b>$item_name</b> to returned";
+        
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $borrowRequest->requestor_user_id,

@@ -15,4 +15,9 @@ class ActivityLogController extends Controller
             'user_id' => $user->id
         ]);
     }
+
+    public function index()
+    {
+        return ActivityLog::orderBy('created_at', 'desc')->take(2000)->get();
+    }
 }

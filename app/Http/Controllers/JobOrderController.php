@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\PurchaseOrder;
 use App\Models\RepairRequest;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ActivityLogController;
 
 class JobOrderController extends Controller
 {
@@ -31,6 +32,11 @@ class JobOrderController extends Controller
         $repairRequest->save();
 
         $item = $repairRequest->item;
+
+        $itemName = $item->inventory_parent_item->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set job order for $itemName <b>$item->serial_number</b> to repaired";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $repairRequest->requestor_user_id,
@@ -73,6 +79,12 @@ class JobOrderController extends Controller
         $item->save();
 
         $replacementItem->save();
+
+        
+        $itemName = $item->inventory_parent_item->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set job order for $itemName <b>$item->serial_number</b> to replaced";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
         Notification::create([
             'user_id' => $repairRequest->requestor_user_id,
@@ -126,6 +138,11 @@ class JobOrderController extends Controller
 
         $item->save();
 
+        
+        $itemName = $item->inventory_parent_item->name;
+        $current_user_name = auth()->user()->name;
+        $activity_text = "<b>$current_user_name</b> set job order for $itemName <b>$item->serial_number</b> to PO created";
+        ActivityLogController::store(auth()->user(), $activity_text);
 
 
         Notification::create([

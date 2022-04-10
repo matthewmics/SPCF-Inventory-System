@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BorrowRequestController;
 use App\Http\Controllers\BuildingController;
@@ -142,6 +143,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/borrows/{id}/reject', [BorrowRequestController::class, 'reject'])->where(['id' => '[0-9]+']);
     Route::post('/borrows/{id}/borrow', [BorrowRequestController::class, 'setAsBorrowed'])->where(['id' => '[0-9]+']);
     Route::post('/borrows/{id}/return', [BorrowRequestController::class, 'setAsReturned'])->where(['id' => '[0-9]+']);
+
+    
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
 });
 
 
