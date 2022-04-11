@@ -14,6 +14,7 @@ use App\Http\Controllers\PCComponentController;
 use App\Http\Controllers\PCComponentInstanceController;
 use App\Http\Controllers\POController;
 use App\Http\Controllers\RepairRequestController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RfidController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SeedController;
@@ -146,6 +147,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+
+    
+    Route::post('/reports/room', [ReportController::class, 'roomReport']);
+    Route::post('/reports/building', [ReportController::class, 'buildingReport']);
 });
 
 
