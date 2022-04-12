@@ -61,7 +61,6 @@ class ReportController extends Controller
 
                     if ($b_status === "borrowed") {
                         $borrowing = $borrowing + 1;
-                        continue;
                     }
 
                     if (in_array($r_status, ['pending', 'job order created'])) {
@@ -72,8 +71,6 @@ class ReportController extends Controller
                         if ($r_status === "job order created") {
                             $repairing = $repairing + 1;
                         }
-
-                        continue;
                     } else {
                         $working = $working + 1;
                     }
