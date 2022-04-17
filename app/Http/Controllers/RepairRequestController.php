@@ -17,23 +17,23 @@ class RepairRequestController extends Controller
         $role = auth()->user()->role;
 
         if ($role === 'department') {
-            return RepairRequest::with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
+            return RepairRequest::withTrashed()->with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
                 ->orderBy('created_at', 'desc')
                 ->where('requestor_user_id', auth()->user()->id)
                 ->get();
         } else if ($role === 'its') {
-            return RepairRequest::with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
+            return RepairRequest::withTrashed()->with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
                 ->where('item_type', 'PC')
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else if ($role === 'ppfo') {
-            return RepairRequest::with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
+            return RepairRequest::withTrashed()->with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
                 ->where('item_type', '<>', 'PC')
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
 
-        return RepairRequest::with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
+        return RepairRequest::withTrashed()->with(['item', 'requestor', 'item.inventory_parent_item', 'handler'])
             ->orderBy('created_at', 'desc')
             ->get();
     }

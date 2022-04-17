@@ -20,23 +20,23 @@ class TransferRequestController extends Controller
         $role = auth()->user()->role;
 
         if ($role === 'department') {
-            return TransferRequest::with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
+            return TransferRequest::withTrashed()->with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
                 ->orderBy('created_at', 'desc')
                 ->where('requestor_user_id', auth()->user()->id)
                 ->get();
         } else if ($role === 'its') {
-            return TransferRequest::with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
+            return TransferRequest::withTrashed()->with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
                 ->where('item_type', 'PC')
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else if ($role === 'ppfo') {
-            return TransferRequest::with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
+            return TransferRequest::withTrashed()->with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
                 ->where('item_type', '<>', 'PC')
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
 
-        return TransferRequest::with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
+        return TransferRequest::withTrashed()->with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler'])
             ->orderBy('created_at', 'desc')
             ->get();
     }
