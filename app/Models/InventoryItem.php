@@ -89,7 +89,7 @@ class InventoryItem extends Model
 
     public function inventory_parent_item()
     {
-        return $this->belongsTo(InventoryParentItem::class);
+        return $this->belongsTo(InventoryParentItem::class)->withTrashed();
     }
 
     public function room()
