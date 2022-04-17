@@ -27,21 +27,21 @@ class RepairRequest extends Model
     
     public function file_storage()
     {
-        return $this->belongsTo(FileStorage::class, 'file_storage_id');
+        return $this->belongsTo(FileStorage::class, 'file_storage_id')->withTrashed();
     }
 
     public function item()
     {
-        return $this->belongsTo(InventoryItem::class, 'item_id');
+        return $this->belongsTo(InventoryItem::class, 'item_id')->withTrashed();
     }
 
     public function requestor()
     {
-        return $this->belongsTo(User::class, 'requestor_user_id');
+        return $this->belongsTo(User::class, 'requestor_user_id')->withTrashed();
     }
     
     public function handler()
     {
-        return $this->belongsTo(User::class, 'handler_user_id');
+        return $this->belongsTo(User::class, 'handler_user_id')->withTrashed();
     }
 }
