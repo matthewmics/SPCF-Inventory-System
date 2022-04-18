@@ -26,26 +26,26 @@ class BorrowRequest extends Model
 
     public function item()
     {
-        return $this->belongsTo(InventoryItem::class, 'item_id');
+        return $this->belongsTo(InventoryItem::class, 'item_id')->withTrashed();
     }
 
     public function requestor()
     {
-        return $this->belongsTo(User::class, 'requestor_user_id');
+        return $this->belongsTo(User::class, 'requestor_user_id')->withTrashed();
     }
     
     public function handler()
     {
-        return $this->belongsTo(User::class, 'handler_user_id');
+        return $this->belongsTo(User::class, 'handler_user_id')->withTrashed();
     }
 
     public function current_room()
     {
-        return $this->belongsTo(Room::class, 'current_room_id');
+        return $this->belongsTo(Room::class, 'current_room_id')->withTrashed();
     }
 
     public function destination_room()
     {
-        return $this->belongsTo(Room::class, 'destination_room_id');
+        return $this->belongsTo(Room::class, 'destination_room_id')->withTrashed();
     }
 }

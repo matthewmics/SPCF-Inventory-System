@@ -93,12 +93,19 @@ class ReportController extends Controller
     {
         $room_id = $request['room_id'];
         $date = $request['date'];
+        $items_to_generate = $request['items_to_generate'];
 
         $room = Room::find($room_id);
 
-        $room_items = InventoryItem::with(['inventory_parent_item'])->where('room_id', $room_id)
-            ->where('is_disposed', false)
-            ->get();
+        $room_items_query = InventoryItem::with(['inventory_parent_item'])
+            ->where('room_id', $room_id)
+            ->where('is_disposed', false);
+
+        if (count($items_to_generate)) {
+            $room_items_query->whereIn('inventory_parent_item_id', $items_to_generate);
+        }
+
+        $room_items = $room_items_query->get();
 
         return $this->generateReport($room_items, ["Room: $room->name", "", "As Of: $date"]);
     }
@@ -107,12 +114,20 @@ class ReportController extends Controller
     {
         $building_id = $request['building_id'];
         $date = $request['date'];
+        $items_to_generate = $request['items_to_generate'];
 
         $building = Building::find($building_id);
 
-        $items = InventoryItem::with(['inventory_parent_item'])
-            ->whereIn('room_id', Room::select('id')->where('building_id', $building_id))
-            ->get();
+        $items_query = InventoryItem::with(['inventory_parent_item'])
+            ->where('is_disposed', false)
+            ->whereIn('room_id', Room::select('id')
+                ->where('building_id', $building_id));
+
+        if (count($items_to_generate)) {
+            $items_query->whereIn('inventory_parent_item_id', $items_to_generate);
+        }
+
+        $items = $items_query->get();
 
         return $this->generateReport($items, ["Building: $building->name", "", "As Of: $date"]);
     }
