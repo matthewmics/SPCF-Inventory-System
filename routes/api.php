@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\BorrowRequestController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\DepartmentController;
@@ -85,6 +86,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/inventory/parents/{id}', [InventoryController::class, 'updateItemParent']);
     Route::delete('/inventory/parents/{id}', [InventoryController::class, 'deleteItemParent']);
 
+    Route::get('/inventory/items/for-borrows', [InventoryController::class, 'availableForBorrows']);
     Route::get('/inventory/items/disposed', [InventoryController::class, 'getDisposedItems']);
     Route::get('/inventory/items/{id}/components', [InventoryController::class, 'inventoryItemShowComponents'])->where(['id' => '[0-9]+']);
     Route::post('/inventory/items', [InventoryController::class, 'createItem']);
@@ -137,18 +139,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/purchase-orders', [POController::class, 'index']);
 
-    Route::get('/borrows', [BorrowRequestController::class, 'getRequests']);
-    Route::post('/borrows', [BorrowRequestController::class, 'requestBorrow']);
-    Route::get('/borrows/processable', [BorrowRequestController::class, 'processableRequests']);
-    Route::post('/borrows/{id}/inprogress', [BorrowRequestController::class, 'setInProgress'])->where(['id' => '[0-9]+']);
-    Route::post('/borrows/{id}/reject', [BorrowRequestController::class, 'reject'])->where(['id' => '[0-9]+']);
-    Route::post('/borrows/{id}/borrow', [BorrowRequestController::class, 'setAsBorrowed'])->where(['id' => '[0-9]+']);
-    Route::post('/borrows/{id}/return', [BorrowRequestController::class, 'setAsReturned'])->where(['id' => '[0-9]+']);
+    // Route::get('/borrows', [BorrowRequestController::class, 'getRequests']);
+    Route::post('/borrows', [BorrowController::class, 'createRequest']);
+    Route::get('/borrows/processable', [BorrowController::class, 'processableRequests']);
+    Route::get('/borrows/{id}', [BorrowController::class, 'show'])->where(['id' => '[0-9]+']);;
+    Route::post('/borrows/{id}/reject', [BorrowController::class, 'reject'])->where(['id' => '[0-9]+']);
+    // Route::post('/borrows/{id}/inprogress', [BorrowRequestController::class, 'setInProgress'])->where(['id' => '[0-9]+']);
+    // Route::post('/borrows/{id}/borrow', [BorrowRequestController::class, 'setAsBorrowed'])->where(['id' => '[0-9]+']);
+    Route::post('/borrows/{id}/return', [BorrowController::class, 'setAsReturned'])->where(['id' => '[0-9]+']);
 
-    
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
-
-    
     Route::post('/reports/room', [ReportController::class, 'roomReport']);
     Route::post('/reports/building', [ReportController::class, 'buildingReport']);
 });

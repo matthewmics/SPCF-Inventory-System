@@ -246,4 +246,40 @@ class InventoryController extends Controller
 
         return $result;
     }
+
+    public function availableForBorrows(Request $request)
+    {
+        $role = auth()->user()->role;
+
+        $parentId = $request->query('parentId');
+        $roomId = $request->query('roomId');
+
+        $query = InventoryItem::with(['inventory_parent_item', 'room', 'room.building'])
+            ->where('is_disposed', false)
+            ->where('inventory_parent_item_id', $parentId)
+            ->where('room_id', $roomId)
+            ->whereNotNull('room_id');
+
+        $result = $query->get();
+
+        $result = $result->filter(function ($model) use ($role) {
+
+            $itemType = $model->inventory_parent_item->item_type;
+
+            if ($role === 'its' && $itemType !== 'PC') {
+                return false;
+            } else if ($role === 'ppfo' && $itemType === 'PC') {
+                return false;
+            }
+
+            $isAvailable = is_null($model->borrow_request_id)
+                && ($model->repair_status === 'none' || $model->repair_status === 'repaired')
+                && ($model->transfer_status === 'none' || $model->transfer_status === 'completed');
+
+
+            return $isAvailable;
+        })->values();
+
+        return $result;
+    }
 }

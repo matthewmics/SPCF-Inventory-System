@@ -23,7 +23,6 @@ class RepairRequest extends Model
         'rejection_details',
         'details'
     ];
-
     
     public function file_storage()
     {

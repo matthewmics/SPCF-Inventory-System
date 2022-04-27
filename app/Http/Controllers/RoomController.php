@@ -58,7 +58,7 @@ class RoomController extends Controller
 
     public function index()
     {
-        return Room::with('building')->orderBy('id')->get();
+        return Room::with('building')->whereNotNull('building_id')->orderBy('id')->get();
     }
 
 

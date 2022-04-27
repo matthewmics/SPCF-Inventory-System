@@ -25,7 +25,8 @@ class InventoryItem extends Model
         'serial_number',
         'inventory_parent_item_id',
         'room_id',
-        'is_disposed'
+        'is_disposed',
+        'borrow_request_id'
     ];
 
     protected $appends = ['repair_status', 'transfer_status', 'borrow_status'];
@@ -69,16 +70,9 @@ class InventoryItem extends Model
 
     public function getBorrowStatusAttribute()
     {
-        $id = $this->id;
-
-        $data = BorrowRequest::where('item_id', $id)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        if ($data) {
-            return $data->status;
+        if ($this->borrow_request_id) {
+            return 'borrowed';
         }
-
         return 'none';
     }
 
