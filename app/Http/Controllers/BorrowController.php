@@ -10,9 +10,30 @@ use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use App\Models\DepartmentBuilding;
+use App\Models\InventoryItem;
 
 class BorrowController extends Controller
 {
+    public function index()
+    {
+        $query = BorrowRequest2::with(['items', 'items.inventory_parent_item', 'destination', 'worker']);
+
+        $role = auth()->user()->role;
+
+        if ($role === 'department') {
+            $query->where('requested_by', auth()->user()->id);
+        }
+
+        if ($role === 'its') {
+            $query->where('worker', auth()->user()->id);
+        }
+
+        if ($role === 'ppfo') {
+            $query->where('worker', auth()->user()->id);
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
 
     public function show($id)
     {
@@ -24,8 +45,7 @@ class BorrowController extends Controller
         $role = auth()->user()->role;
         $user_id = auth()->user()->id;
 
-        $query = BorrowRequest2::with(['items', 'items.inventory_parent_item', 'destination', 'worker'])
-            ->where('status', 'pending');
+        $query = BorrowRequest2::with(['items', 'items.inventory_parent_item', 'destination', 'worker']);
 
         if ($role === 'department') {
             $query->where(function ($q) {
@@ -70,11 +90,11 @@ class BorrowController extends Controller
             $borrow_req = BorrowRequest2::create($request->all());
 
             $room_destination = Room::find($request['destination_room']);
-            $notified_users = null;
             $notifications_to_insert = [];
             $borrower = $request['borrower'];
             $room_destination_name = $room_destination->name;
 
+            $notified_users = null;
             $notified_users = User::select('id')->where('role', 'admin')
                 ->orWhere('role', 'its')
                 ->orWhere('role', 'ppfo')
@@ -112,6 +132,7 @@ class BorrowController extends Controller
             $borrowRequest->status = 'rejected';
             $borrowRequest->worker = $handler_id;
             $borrowRequest->rejection_details = $request['rejection_details'];
+            $borrowRequest->date_processed = \Carbon\Carbon::now('UTC');
 
             $borrowRequest->save();
 
@@ -125,6 +146,81 @@ class BorrowController extends Controller
             ]);
 
             ActivityLogController::store(auth()->user(), $activity_text);
+
+            return $borrowRequest;
+        });
+    }
+
+    public function borrow(Request $request, $id)
+    {
+        $request->validate([
+            'items' => 'required'
+        ]);
+
+        return DB::transaction(function () use ($request, $id) {
+
+            $items = $request['items'];
+
+            $handler_id = auth()->user()->id;
+
+            $borrowRequest = BorrowRequest2::with(['destination'])->find($id);
+
+            $borrowRequest->status = 'borrowed';
+            $borrowRequest->worker = $handler_id;
+            $borrowRequest->date_processed = \Carbon\Carbon::now('UTC');
+
+            $borrowRequest->save();
+
+            InventoryItem::whereIn('id', $items)->update([
+                'borrow_request_id' => $borrowRequest->id
+            ]);
+
+            $current_user_name = auth()->user()->name;
+
+            $activity_text = "<b>$current_user_name</b> processed <b>$borrowRequest->borrower</b>'s request to borrow <b>$borrowRequest->borrow_details</b>";
+
+            ActivityLogController::store(auth()->user(), $activity_text);
+
+            Notification::create([
+                'user_id' => $borrowRequest->requested_by,
+                'message' => $activity_text
+            ]);
+
+            return $borrowRequest;
+        });
+    }
+
+    public function return(Request $request, $id)
+    {
+
+        return DB::transaction(function () use ($request, $id) {
+            $handler_id = auth()->user()->id;
+
+            $borrowRequest = BorrowRequest2::with(['items', 'items.inventory_parent_item', 'destination', 'worker'])->find($id);
+            $borrowRequest->status = 'returned';
+            $borrowRequest->worker = $handler_id;
+
+            $borrowRequest->borrow_data = json_encode($borrowRequest);
+            $borrowRequest->date_returned = \Carbon\Carbon::now('UTC');
+
+            $borrowRequest->save();
+
+            $items = array_map(function ($item) {
+                return $item['id'];
+            }, $borrowRequest->items->toArray());
+
+            InventoryItem::whereIn('id', $items)->update([
+                'borrow_request_id' => null
+            ]);
+
+            $activity_text = "<b>$borrowRequest->borrower</b> has returned <b>$borrowRequest->borrow_details</b>";
+
+            ActivityLogController::store(auth()->user(), $activity_text);
+
+            Notification::create([
+                'user_id' => $borrowRequest->worker,
+                'message' => $activity_text
+            ]);
 
             return $borrowRequest;
         });

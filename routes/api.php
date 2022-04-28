@@ -139,14 +139,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/purchase-orders', [POController::class, 'index']);
 
-    // Route::get('/borrows', [BorrowRequestController::class, 'getRequests']);
+    Route::get('/borrows', [BorrowController::class, 'index']);
     Route::post('/borrows', [BorrowController::class, 'createRequest']);
     Route::get('/borrows/processable', [BorrowController::class, 'processableRequests']);
     Route::get('/borrows/{id}', [BorrowController::class, 'show'])->where(['id' => '[0-9]+']);;
     Route::post('/borrows/{id}/reject', [BorrowController::class, 'reject'])->where(['id' => '[0-9]+']);
     // Route::post('/borrows/{id}/inprogress', [BorrowRequestController::class, 'setInProgress'])->where(['id' => '[0-9]+']);
-    // Route::post('/borrows/{id}/borrow', [BorrowRequestController::class, 'setAsBorrowed'])->where(['id' => '[0-9]+']);
-    Route::post('/borrows/{id}/return', [BorrowController::class, 'setAsReturned'])->where(['id' => '[0-9]+']);
+    Route::post('/borrows/{id}/borrow', [BorrowController::class, 'borrow'])->where(['id' => '[0-9]+']);
+    Route::post('/borrows/{id}/return', [BorrowController::class, 'return'])->where(['id' => '[0-9]+']);
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/reports/room', [ReportController::class, 'roomReport']);
