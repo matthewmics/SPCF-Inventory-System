@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\InventoryItem;
 use App\Models\User;
 use App\Models\Room;
+use App\Models\Note;
 
 class BorrowRequest2 extends Model
 {
@@ -36,7 +37,7 @@ class BorrowRequest2 extends Model
     {
         return $this->belongsTo(User::class, 'worker')->withTrashed();
     }
-    
+
     public function requestor()
     {
         return $this->belongsTo(User::class, 'requested_by')->withTrashed();
@@ -45,5 +46,10 @@ class BorrowRequest2 extends Model
     public function destination()
     {
         return $this->belongsTo(Room::class, 'destination_room')->withTrashed();
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class, 'borrow_id');
     }
 }

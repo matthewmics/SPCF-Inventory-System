@@ -10,6 +10,7 @@ use App\Http\Controllers\FileStorageController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ITSPPFOController;
 use App\Http\Controllers\JobOrderController;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PCComponentController;
 use App\Http\Controllers\PCComponentInstanceController;
@@ -151,6 +152,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/reports/room', [ReportController::class, 'roomReport']);
     Route::post('/reports/building', [ReportController::class, 'buildingReport']);
+
+    Route::post('/notes', [NoteController::class, 'create']);
+    Route::get('/notes', [NoteController::class, 'show']);
 });
 
 

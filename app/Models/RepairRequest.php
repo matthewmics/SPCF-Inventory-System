@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\FileStorage;
 use App\Models\User;
 use App\Models\InventoryItem;
+use App\Models\Note;
 
 class RepairRequest extends Model
 {
@@ -23,7 +24,7 @@ class RepairRequest extends Model
         'rejection_details',
         'details'
     ];
-    
+
     public function file_storage()
     {
         return $this->belongsTo(FileStorage::class, 'file_storage_id')->withTrashed();
@@ -38,9 +39,14 @@ class RepairRequest extends Model
     {
         return $this->belongsTo(User::class, 'requestor_user_id')->withTrashed();
     }
-    
+
     public function handler()
     {
         return $this->belongsTo(User::class, 'handler_user_id')->withTrashed();
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class, 'repair_id');
     }
 }

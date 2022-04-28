@@ -42,7 +42,7 @@ class TransferRequest extends Model
     {
         return $this->belongsTo(User::class, 'requestor_user_id')->withTrashed();
     }
-    
+
     public function handler()
     {
         return $this->belongsTo(User::class, 'handler_user_id')->withTrashed();
@@ -56,5 +56,10 @@ class TransferRequest extends Model
     public function destination_room()
     {
         return $this->belongsTo(Room::class, 'destination_room_id')->withTrashed();
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class, 'transfer_id');
     }
 }
