@@ -26,7 +26,8 @@ class InventoryItem extends Model
         'inventory_parent_item_id',
         'room_id',
         'is_disposed',
-        'borrow_request_id'
+        'borrow_request_id',
+        'remarks'
     ];
 
     protected $appends = ['repair_status', 'transfer_status', 'borrow_status'];

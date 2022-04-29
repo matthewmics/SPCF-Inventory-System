@@ -25,7 +25,8 @@ class BorrowRequest2 extends Model
         'worker',
         'requested_by',
         'rejection_details',
-        'destination_room'
+        'destination_room',
+        'date_processed'
     ];
 
     public function items()
@@ -34,6 +35,11 @@ class BorrowRequest2 extends Model
     }
 
     public function worker()
+    {
+        return $this->belongsTo(User::class, 'worker')->withTrashed();
+    }
+
+    public function worker2()
     {
         return $this->belongsTo(User::class, 'worker')->withTrashed();
     }

@@ -152,6 +152,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/reports/room', [ReportController::class, 'roomReport']);
     Route::post('/reports/building', [ReportController::class, 'buildingReport']);
+    Route::post('/reports/transfer', [ReportController::class, 'transferReport']);
+    Route::post('/reports/repair', [ReportController::class, 'repairReport']);
+    Route::post('/reports/borrow', [ReportController::class, 'borrowReport']);
 
     Route::post('/notes', [NoteController::class, 'create']);
     Route::get('/notes', [NoteController::class, 'show']);
