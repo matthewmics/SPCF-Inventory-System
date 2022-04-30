@@ -148,7 +148,7 @@ class ReportController extends Controller
 
         fputcsv($file, ['Borrow Requests', "", "As Of: $date"]);
         fputcsv($file, ['']);
-        fputcsv($file, ['Status', 'Date', 'Borrower', 'Requested Date', 'To Borrow', 'purpose', 'Worked On By', 'Action Date']);
+        fputcsv($file, ['Status', 'Date', 'Borrower', 'Department', 'Requested Date', 'To Borrow', 'purpose', 'Worked On By', 'Action Date']);
 
         $borrows = BorrowRequest2::with(['items', 'items.inventory_parent_item', 'destination', 'worker2']);
 
@@ -172,6 +172,7 @@ class ReportController extends Controller
                 $borrow['status'],
                 $dateLocal,
                 $borrow['borrower'],
+                $borrow['department'],
                 $borrow['from'] . ' to ' . $borrow['to'],
                 $borrow['borrow_details'],
                 $borrow['purpose'],

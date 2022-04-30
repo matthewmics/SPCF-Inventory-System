@@ -77,7 +77,8 @@ class BorrowController extends Controller
             'borrow_details' => 'required',
             'from' => 'required',
             'to' => 'required',
-            'borrower' => 'required'
+            'borrower' => 'required',
+            'department' => 'required'
         ], [
             'destination_room.required' => 'Borrow for is required',
             'from.required' => 'Borrow date is required',
