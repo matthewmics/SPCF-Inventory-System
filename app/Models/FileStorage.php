@@ -9,6 +9,8 @@ class FileStorage extends Model
 {
     use HasFactory;
 
+    protected $table = 'file_storages';
+
     protected $fillable = [
         'name',
         'base64'

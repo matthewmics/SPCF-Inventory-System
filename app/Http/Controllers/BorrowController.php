@@ -11,6 +11,7 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use App\Models\DepartmentBuilding;
 use App\Models\InventoryItem;
+use App\Models\FileStorage;
 
 class BorrowController extends Controller
 {
@@ -193,6 +194,12 @@ class BorrowController extends Controller
     public function return(Request $request, $id)
     {
 
+        $request->validate([
+            'borrower_note' => 'required'
+        ], [
+            'borrower_note.required' => 'Note is required'
+        ]);
+
         return DB::transaction(function () use ($request, $id) {
             $handler_id = auth()->user()->id;
 
@@ -203,6 +210,18 @@ class BorrowController extends Controller
             $borrowRequest->borrow_data = json_encode($borrowRequest);
             $borrowRequest->date_returned = \Carbon\Carbon::now('UTC');
 
+            if ($request->hasFile('file')) {
+                $base64file = base64_encode(file_get_contents($request->file('file')->path()));
+
+                $file_storage = FileStorage::create([
+                    'name' => uniqid() . "_" . $request->file('file')->getClientOriginalName(),
+                    'base64' => $base64file
+                ]);
+
+                $borrowRequest->borrower_file = $file_storage->id;
+            }
+
+            $borrowRequest->borrower_note = $request['borrower_note'];
             $borrowRequest->save();
 
             $items = array_map(function ($item) {

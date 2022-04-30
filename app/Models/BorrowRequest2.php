@@ -26,7 +26,9 @@ class BorrowRequest2 extends Model
         'requested_by',
         'rejection_details',
         'destination_room',
-        'date_processed'
+        'date_processed',
+        'borrower_file',
+        'borrower_note'
     ];
 
     public function items()
