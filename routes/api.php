@@ -68,6 +68,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/users', [UserController::class, 'list']);
     Route::get('/users/{id}', [UserController::class, 'find']);
 
+    Route::get('/buildings/{id}/items', [BuildingController::class, 'items'])->where(['id' => '[0-9]+']);
     Route::resource('buildings', BuildingController::class);
 
     Route::get('/rooms/{room_id}/item-parents', [RoomController::class, 'getItemParents'])
