@@ -6,16 +6,17 @@ use App\Http\Controllers\ActivityLogController;
 use App\Models\Building;
 use App\Models\InventoryItem;
 use Illuminate\Http\Request;
+use App\Models\Room;
 
 class BuildingController extends Controller
 {
 
     public function items($id)
     {
-        return InventoryItem::with('room')->where('is_disposed', false)
+        return InventoryItem::with(['room','inventory_parent_item'])->where('is_disposed', false)
             ->whereIn(
                 'room_id',
-                Room::whereIn('building_id', Building::select('id')->find($id))
+                Room::select('id')->whereIn('building_id', Building::select('id')->find($id))
             )
             ->get();
     }
