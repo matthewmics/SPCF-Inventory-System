@@ -15,6 +15,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PCComponentController;
 use App\Http\Controllers\PCComponentInstanceController;
 use App\Http\Controllers\POController;
+use App\Http\Controllers\PurchaseItemController;
 use App\Http\Controllers\RepairRequestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RfidController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\TransferRequestController;
 use App\Http\Controllers\UserController;
 use App\Models\InventoryParentItem;
 use App\Models\InventoryItem;
+use App\Models\PurchaseItemRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -150,12 +152,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/borrows/{id}/borrow', [BorrowController::class, 'borrow'])->where(['id' => '[0-9]+']);
     Route::post('/borrows/{id}/return', [BorrowController::class, 'return'])->where(['id' => '[0-9]+']);
 
+    
+    Route::post('/purchase-item-requests', [PurchaseItemController::class, 'create']);
+
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/reports/room', [ReportController::class, 'roomReport']);
     Route::post('/reports/building', [ReportController::class, 'buildingReport']);
     Route::post('/reports/transfer', [ReportController::class, 'transferReport']);
     Route::post('/reports/repair', [ReportController::class, 'repairReport']);
     Route::post('/reports/borrow', [ReportController::class, 'borrowReport']);
+    Route::post('/reports/inventory', [ReportController::class, 'inventoryReport']);
 
     Route::post('/notes', [NoteController::class, 'create']);
     Route::get('/notes', [NoteController::class, 'show']);

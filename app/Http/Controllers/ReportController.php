@@ -17,7 +17,13 @@ class ReportController extends Controller
 
     public function generateReport($room_items, $header_data)
     {
+        $table_headers = ['EQUIPMENT', 'BRAND', 'QTY', 'STATUS', '', '', ''];
+        $table_sub_headers = ['', '', '', 'W', 'N', 'R', 'B', ''];
+        $legends = ['W: Working', 'N: Not Working', 'R: Repairing', 'B: Borrowed'];
+
         $item_map = [];
+
+        $result = [];
 
         foreach ($room_items as $item) {
             $key = $item->inventory_parent_item->name;
@@ -38,15 +44,15 @@ class ReportController extends Controller
 
         ksort($item_map);
 
-        $fileName = uniqid();
-        $fileUrl = "../storage/app/$fileName.csv";
+        // $fileName = uniqid();
+        // $fileUrl = "../storage/app/$fileName.csv";
 
-        $file = fopen($fileUrl, 'w');
+        // $file = fopen($fileUrl, 'w');
 
-        fputcsv($file, $header_data);
-        fputcsv($file, ['']);
-        fputcsv($file, ['EQUIPMENT', 'BRAND', 'QTY', 'STATUS', '', '', '']);
-        fputcsv($file, ['', '', '', 'W', 'N', 'R', 'B', '']);
+        // fputcsv($file, $header_data);
+        // fputcsv($file, ['']);
+        // fputcsv($file, $table_headers);
+        // fputcsv($file, $table_sub_headers);
 
         foreach ($item_map as $key => $brands) {
 
@@ -80,17 +86,35 @@ class ReportController extends Controller
                     }
                 }
 
-                fputcsv($file, [$key, $brand, $total, $working, $notWorking, $repairing, $borrowing]);
+                // fputcsv($file, [$key, $brand, $total, $working, $notWorking, $repairing, $borrowing]);
+                array_push($result, [$key, $brand, $total, $working, $notWorking, $repairing, $borrowing]);
             }
         }
 
 
-        fputcsv($file, ['']);
-        fputcsv($file, ['W: Working', 'N: Not Working', 'R: Repairing', 'B: Borrowed']);
+        // fputcsv($file, ['']);
+        // fputcsv($file, $legends);
 
-        fclose($file);
+        // fclose($file);
 
-        return response()->download($fileUrl)->deleteFileAfterSend(true);
+        return $result;
+        // return response()->download($fileUrl)->deleteFileAfterSend(true);
+    }
+
+    public function inventoryReport(Request $request)
+    {
+        $items_to_generate = $request['items_to_generate'];
+
+        $items_query = InventoryItem::with(['inventory_parent_item'])
+            ->where('is_disposed', false);
+
+        if (count($items_to_generate)) {
+            $items_query->whereIn('inventory_parent_item_id', $items_to_generate);
+        }
+
+        $items = $items_query->get();
+
+        return $this->generateReport($items, []);
     }
 
     public function roomReport(Request $request)
@@ -141,14 +165,16 @@ class ReportController extends Controller
         $date = $request['date'];
         $status_to_generate = $request['status_to_generate'];
 
-        $fileName = uniqid();
-        $fileUrl = "../storage/app/$fileName.csv";
+        $result = [];
 
-        $file = fopen($fileUrl, 'w');
+        // $fileName = uniqid();
+        // $fileUrl = "../storage/app/$fileName.csv";
 
-        fputcsv($file, ['Borrow Requests', "", "As Of: $date"]);
-        fputcsv($file, ['']);
-        fputcsv($file, ['Status', 'Date', 'Borrower', 'Department', 'Requested Date', 'To Borrow', 'purpose', 'Worked On By', 'Action Date']);
+        // $file = fopen($fileUrl, 'w');
+
+        // fputcsv($file, ['Borrow Requests', "", "As Of: $date"]);
+        // fputcsv($file, ['']);
+        // fputcsv($file, ['Status', 'Date', 'Borrower', 'Department', 'Requested Date', 'To Borrow', 'purpose', 'Worked On By', 'Action Date']);
 
         $borrows = BorrowRequest2::with(['items', 'items.inventory_parent_item', 'destination', 'worker2']);
 
@@ -168,7 +194,19 @@ class ReportController extends Controller
                 $actionDate = Carbon::createFromFormat('Y-m-d H:i:s', $borrow['date_processed'])->addHours(8)->toDateTimeString();
             else $actionDate = '-';
 
-            fputcsv($file, [
+            // fputcsv($file, [
+            //     $borrow['status'],
+            //     $dateLocal,
+            //     $borrow['borrower'],
+            //     $borrow['department'],
+            //     $borrow['from'] . ' to ' . $borrow['to'],
+            //     $borrow['borrow_details'],
+            //     $borrow['purpose'],
+            //     $borrow['worker2']['name'],
+            //     $actionDate
+            // ]);
+
+            array_push($result, [
                 $borrow['status'],
                 $dateLocal,
                 $borrow['borrower'],
@@ -181,9 +219,10 @@ class ReportController extends Controller
             ]);
         }
 
-        fclose($file);
+        // fclose($file);
 
-        return response()->download($fileUrl)->deleteFileAfterSend(true);
+        // return response()->download($fileUrl)->deleteFileAfterSend(true);
+        return $result;
     }
 
     public function repairReport(Request $request)
@@ -191,14 +230,16 @@ class ReportController extends Controller
         $date = $request['date'];
         $status_to_generate = $request['status_to_generate'];
 
-        $fileName = uniqid();
-        $fileUrl = "../storage/app/$fileName.csv";
+        $result = [];
 
-        $file = fopen($fileUrl, 'w');
+        // $fileName = uniqid();
+        // $fileUrl = "../storage/app/$fileName.csv";
 
-        fputcsv($file, ['Repair Requests', "", "As Of: $date"]);
-        fputcsv($file, ['']);
-        fputcsv($file, ['Status', 'Date', 'Requestor', 'Item', 'Serial/Asset #', 'Details']);
+        // $file = fopen($fileUrl, 'w');
+
+        // fputcsv($file, ['Repair Requests', "", "As Of: $date"]);
+        // fputcsv($file, ['']);
+        // fputcsv($file, ['Status', 'Date', 'Requestor', 'Item', 'Serial/Asset #', 'Details']);
 
         $repairs = RepairRequest::with(['item', 'requestor', 'item.inventory_parent_item', 'handler']);
 
@@ -214,7 +255,16 @@ class ReportController extends Controller
 
             $dateLocal = Carbon::createFromFormat('Y-m-d H:i:s', $repair['created_at'])->addHours(8)->toDateTimeString();
 
-            fputcsv($file, [
+            // fputcsv($file, [
+            //     $repair['status'],
+            //     $dateLocal,
+            //     $repair['requestor']['name'],
+            //     $repair['item']['inventory_parent_item']['name'],
+            //     $repair['item']['serial_number'],
+            //     $repair['details']
+            // ]);
+
+            array_push($result, [
                 $repair['status'],
                 $dateLocal,
                 $repair['requestor']['name'],
@@ -224,9 +274,10 @@ class ReportController extends Controller
             ]);
         }
 
-        fclose($file);
+        // fclose($file);
 
-        return response()->download($fileUrl)->deleteFileAfterSend(true);
+        // return response()->download($fileUrl)->deleteFileAfterSend(true);
+        return $result;
     }
 
     public function transferReport(Request $request)
@@ -234,14 +285,16 @@ class ReportController extends Controller
         $date = $request['date'];
         $status_to_generate = $request['status_to_generate'];
 
-        $fileName = uniqid();
-        $fileUrl = "../storage/app/$fileName.csv";
+        $result = [];
 
-        $file = fopen($fileUrl, 'w');
+        // $fileName = uniqid();
+        // $fileUrl = "../storage/app/$fileName.csv";
 
-        fputcsv($file, ['Transfer Requests', "", "As Of: $date"]);
-        fputcsv($file, ['']);
-        fputcsv($file, ['Status', 'Date', 'Requestor', 'Item', 'Serial/Asset #', 'From', 'To']);
+        // $file = fopen($fileUrl, 'w');
+
+        // fputcsv($file, ['Transfer Requests', "", "As Of: $date"]);
+        // fputcsv($file, ['']);
+        // fputcsv($file, ['Status', 'Date', 'Requestor', 'Item', 'Serial/Asset #', 'From', 'To']);
 
         $transfers = TransferRequest::with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler']);
 
@@ -257,7 +310,17 @@ class ReportController extends Controller
 
             $dateLocal = Carbon::createFromFormat('Y-m-d H:i:s', $transfer['created_at'])->addHours(8)->toDateTimeString();
 
-            fputcsv($file, [
+            // fputcsv($file, [
+            //     $transfer['status'],
+            //     $dateLocal,
+            //     $transfer['requestor']['name'],
+            //     $transfer['item']['inventory_parent_item']['name'],
+            //     $transfer['item']['serial_number'],
+            //     $transfer['current_room'] ? $transfer['current_room']['name'] : 'Inventory',
+            //     $transfer['destination_room']['name']
+            // ]);
+
+            array_push($result, [
                 $transfer['status'],
                 $dateLocal,
                 $transfer['requestor']['name'],
@@ -268,8 +331,9 @@ class ReportController extends Controller
             ]);
         }
 
-        fclose($file);
+        // fclose($file);
 
-        return response()->download($fileUrl)->deleteFileAfterSend(true);
+        // return response()->download($fileUrl)->deleteFileAfterSend(true);
+        return $result;
     }
 }
