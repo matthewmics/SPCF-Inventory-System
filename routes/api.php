@@ -154,6 +154,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     
     Route::post('/purchase-item-requests', [PurchaseItemController::class, 'create']);
+    Route::get('/purchase-item-requests/processAbles', [PurchaseItemController::class, 'processAbles']);
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/reports/room', [ReportController::class, 'roomReport']);

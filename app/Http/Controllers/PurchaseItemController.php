@@ -15,9 +15,26 @@ use App\Models\Notification;
 class PurchaseItemController extends Controller
 {
 
-    public function processAbles(Request $request){
+    public function processAbles(Request $request)
+    {
         $role = auth()->user()->role;
         $user_id = auth()->user()->id;
+
+        $query  = PurchaseItemRequest::with(['worker_object', 'requestor_object', 'destination']);
+
+        if ($role === 'department') {
+            $query->where('requested_by', $user_id);
+        }
+
+        if ($role === 'ppfo') {
+            $query->whereNot('item_type', 'PC');
+        }
+
+        if ($role === 'its') {
+            $query->where('item_type', 'PC');
+        }
+
+        return $query->get();
     }
 
     public function create(Request $request)
