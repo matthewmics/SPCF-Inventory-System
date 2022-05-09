@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\TransferRequest;
 use App\Models\RepairRequest;
 use App\Models\BorrowRequest2;
+use App\Models\PurchaseItemRequest;
 use Carbon\Carbon;
 
 class ReportController extends Controller
@@ -287,15 +288,6 @@ class ReportController extends Controller
 
         $result = [];
 
-        // $fileName = uniqid();
-        // $fileUrl = "../storage/app/$fileName.csv";
-
-        // $file = fopen($fileUrl, 'w');
-
-        // fputcsv($file, ['Transfer Requests', "", "As Of: $date"]);
-        // fputcsv($file, ['']);
-        // fputcsv($file, ['Status', 'Date', 'Requestor', 'Item', 'Serial/Asset #', 'From', 'To']);
-
         $transfers = TransferRequest::with(['item', 'current_room', 'destination_room', 'requestor', 'item.inventory_parent_item', 'handler']);
 
         if (count($status_to_generate)) {
@@ -310,16 +302,6 @@ class ReportController extends Controller
 
             $dateLocal = Carbon::createFromFormat('Y-m-d H:i:s', $transfer['created_at'])->addHours(8)->toDateTimeString();
 
-            // fputcsv($file, [
-            //     $transfer['status'],
-            //     $dateLocal,
-            //     $transfer['requestor']['name'],
-            //     $transfer['item']['inventory_parent_item']['name'],
-            //     $transfer['item']['serial_number'],
-            //     $transfer['current_room'] ? $transfer['current_room']['name'] : 'Inventory',
-            //     $transfer['destination_room']['name']
-            // ]);
-
             array_push($result, [
                 $transfer['status'],
                 $dateLocal,
@@ -331,9 +313,40 @@ class ReportController extends Controller
             ]);
         }
 
-        // fclose($file);
+        return $result;
+    }
 
-        // return response()->download($fileUrl)->deleteFileAfterSend(true);
+    public function purchaseReport(Request $request)
+    {
+
+        $status_to_generate = $request['status_to_generate'];
+
+        $result = [];
+
+        $pirs = PurchaseItemRequest::with(['worker_object', 'requestor_object', 'destination']);
+
+        if (count($status_to_generate)) {
+            $pirs->whereIn('status', $status_to_generate);
+        } else {
+            $pirs->whereIn('status', ['rejected', 'completed']);
+        }
+
+        $pirs = $pirs->get();
+
+        foreach ($pirs as $pir) {
+
+            $dateLocal = Carbon::createFromFormat('Y-m-d H:i:s', $pir['created_at'])->addHours(8)->toDateTimeString();
+
+            array_push($result, [
+                $pir['status'],
+                $dateLocal,
+                $pir['requestor'],
+                $pir['to_purchase'],
+                $pir['destination']['name'],
+                $pir['worker_object']['name']
+            ]);
+        }
+
         return $result;
     }
 }

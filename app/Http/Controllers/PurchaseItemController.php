@@ -16,6 +16,27 @@ use App\Models\PurchaseOrder;
 class PurchaseItemController extends Controller
 {
 
+    public function index()
+    {
+        $query = PurchaseItemRequest::with(['worker_object', 'requestor_object', 'destination']);
+
+        $role = auth()->user()->role;
+
+        if ($role === 'department') {
+            $query->where('requested_by', auth()->user()->id);
+        }
+
+        if ($role === 'its') {
+            $query->where('worker', auth()->user()->id);
+        }
+
+        if ($role === 'ppfo') {
+            $query->where('worker', auth()->user()->id);
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+
     public function processAbles(Request $request)
     {
         $role = auth()->user()->role;
@@ -189,7 +210,6 @@ class PurchaseItemController extends Controller
             ActivityLogController::store(auth()->user(), $activity_text);
 
             return $pirRequest;
-
         });
     }
 }

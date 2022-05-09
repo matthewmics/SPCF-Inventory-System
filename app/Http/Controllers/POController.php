@@ -47,6 +47,9 @@ class POController extends Controller
                         . '<b>' . $po->item_name . '</b>'
                         . ' has been successfully bought'
                 ]);
+
+                $pir->status = "completed";
+                $pir->save();
             }
 
             $po->is_completed = true;

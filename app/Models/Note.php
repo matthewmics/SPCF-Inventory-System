@@ -16,6 +16,7 @@ class Note extends Model
         'file_storage_id',
         'transfer_id',
         'repair_id',
-        'borrow_id'
+        'borrow_id',
+        'pir_id'
     ];
 }

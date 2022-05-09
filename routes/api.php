@@ -160,6 +160,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/purchase-item-requests/{id}/create-po', [PurchaseItemController::class, 'createPO'])->where(['id' => '[0-9]+']);
 
     Route::get('/purchase-item-requests/processAbles', [PurchaseItemController::class, 'processAbles']);
+    Route::get('/purchase-item-requests', [PurchaseItemController::class, 'index']);
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/reports/room', [ReportController::class, 'roomReport']);
@@ -168,6 +169,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/reports/repair', [ReportController::class, 'repairReport']);
     Route::post('/reports/borrow', [ReportController::class, 'borrowReport']);
     Route::post('/reports/inventory', [ReportController::class, 'inventoryReport']);
+    Route::post('/reports/purchase', [ReportController::class, 'purchaseReport']);
 
     Route::post('/notes', [NoteController::class, 'create']);
     Route::get('/notes', [NoteController::class, 'show']);

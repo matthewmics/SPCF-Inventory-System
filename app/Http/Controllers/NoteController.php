@@ -21,6 +21,8 @@ class NoteController extends Controller
             return Note::where('repair_id', $id)->orderBy('created_at', 'desc')->get();
         } else if ($name === 'borrow') {
             return Note::where('borrow_id', $id)->orderBy('created_at', 'desc')->get();
+        } else if ($name === 'purchase') {
+            return Note::where('pir_id', $id)->orderBy('created_at', 'desc')->get();
         }
     }
 
