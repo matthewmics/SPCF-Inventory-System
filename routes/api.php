@@ -142,6 +142,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/job-orders/{id}/create-po', [JobOrderController::class, 'createPO']);
 
     Route::get('/purchase-orders', [POController::class, 'index']);
+    Route::post('/purchase-orders/{id}/complete', [POController::class, 'complete'])->where(['id' => '[0-9]+']);
 
     Route::get('/borrows', [BorrowController::class, 'index']);
     Route::post('/borrows', [BorrowController::class, 'createRequest']);
@@ -152,8 +153,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/borrows/{id}/borrow', [BorrowController::class, 'borrow'])->where(['id' => '[0-9]+']);
     Route::post('/borrows/{id}/return', [BorrowController::class, 'return'])->where(['id' => '[0-9]+']);
 
-    
+
     Route::post('/purchase-item-requests', [PurchaseItemController::class, 'create']);
+
+    Route::post('/purchase-item-requests/{id}/reject', [PurchaseItemController::class, 'reject'])->where(['id' => '[0-9]+']);
+    Route::post('/purchase-item-requests/{id}/create-po', [PurchaseItemController::class, 'createPO'])->where(['id' => '[0-9]+']);
+
     Route::get('/purchase-item-requests/processAbles', [PurchaseItemController::class, 'processAbles']);
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);

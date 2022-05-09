@@ -11,13 +11,13 @@ class PurchaseOrder extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'job_order_id';
-
     protected $fillable = [
         'file_storage_id',
         'job_order_id',
+        'purchase_item_request_id',
         'room_name',
-        'item_name'
+        'item_name',
+        'is_completed'
     ];
 
     public function job_order()
@@ -28,5 +28,10 @@ class PurchaseOrder extends Model
     public function file_storage()
     {
         return $this->belongsTo(FileStorage::class);
+    }
+
+    public function purchase_item_request()
+    {
+        return $this->belongsTo(PurchaseItemRequest::class, 'purchase_item_request_id');
     }
 }
