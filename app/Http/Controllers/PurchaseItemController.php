@@ -202,17 +202,29 @@ class PurchaseItemController extends Controller
 
             // create item
 
-            $newParent = InventoryParentItem::create([
-                'name' => $pirRequest->to_purchase,
-                'item_type' => $pirRequest->item_type
-            ]);
+            if ($request['existing_parent_item_id']) {
 
-            InventoryItem::create([
-                'inventory_parent_item_id' => $newParent->id,
-                'brand' => 'NA',
-                'serial_number' => 'NA',
-                'room_id' => $pirRequest->destination_room
-            ]);
+                InventoryItem::create([
+                    'inventory_parent_item_id' => $request['existing_parent_item_id'],
+                    'brand' => 'NA',
+                    'serial_number' => 'NA',
+                    'room_id' => $pirRequest->destination_room
+                ]);
+            } else {
+                $newParent = InventoryParentItem::create([
+                    'name' => $pirRequest->to_purchase,
+                    'item_type' => $pirRequest->item_type
+                ]);
+
+                InventoryItem::create([
+                    'inventory_parent_item_id' => $newParent->id,
+                    'brand' => 'NA',
+                    'serial_number' => 'NA',
+                    'room_id' => $pirRequest->destination_room
+                ]);
+            }
+
+
 
             // end of create item
 
