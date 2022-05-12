@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\NotificationController;
+use App\Models\InventoryItem;
+use App\Models\InventoryParentItem;
 use App\Models\Room;
 use App\Models\Notification;
 use App\Models\PurchaseOrder;
@@ -197,6 +199,22 @@ class PurchaseItemController extends Controller
             ]);
 
             // end of create po
+
+            // create item
+
+            $newParent = InventoryParentItem::create([
+                'name' => $pirRequest->to_purchase,
+                'item_type' => $pirRequest->item_type
+            ]);
+
+            InventoryItem::create([
+                'inventory_parent_item_id' => $newParent->id,
+                'brand' => 'NA',
+                'serial_number' => 'NA',
+                'room_id' => $pirRequest->destination_room
+            ]);
+
+            // end of create item
 
             $current_user_name = auth()->user()->name;
 
